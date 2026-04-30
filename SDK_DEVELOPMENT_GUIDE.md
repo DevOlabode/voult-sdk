@@ -119,7 +119,7 @@ Configure the package for both ESM and CommonJS:
 ```
 voult-sdk/
 ├── src/
-│   ├── index.js           # Main entry point, exports all functions
+│   ├── index.js           # Main entry point, exports all functions and initializes SDK
 │   ├── client.js          # HTTP client wrapper
 │   ├── types.js           # JSDoc type definitions
 │   ├── errors.js          # Custom error classes
@@ -237,6 +237,197 @@ Always include:
 - `X-API-Key` or `Authorization` header
 - `X-App-Id` for app identification
 - `X-Request-ID` for tracing
+
+---
+
+### What Goes in `src/index.js` (Main Entry Point)
+
+The `src/index.js` file is the main entry point for your SDK. It serves several critical purposes:
+
+#### 1. Re-export All Public Functions
+
+```javascript
+// src/index.js
+
+// Export the main client class
+export { VoultClient } from './client.js';
+
+// Export all auth functions
+export {
+  signUpWithUsernameAndPassword,
+  signUpWithEmailAndPassword,
+} from './auth/signup.js';
+
+export {
+  signInWithUsernameAndPassword,
+  signInWithEmailAndPassword,
+  signInWithEmailLink,
+  verifyEmailLink,
+} from './auth/signin.js';
+
+export { signOut } from './auth/signout.js';
+export { deleteUser } from './auth/delete-user.js';
+
+// Export error classes
+export {
+  VoultError,
+  AuthenticationError,
+  ValidationError,
+  NetworkError,
+} from './errors.js';
+```
+
+#### 2. Create a Default Export (Optional but Recommended)
+
+Provide a convenient default export that initializes the SDK:
+
+```javascript
+// src/index.js
+
+import { VoultClient } from './client.js';
+
+// Default export - initialize with config
+export default function voult(config) {
+  const client = new VoultClient(config);
+  
+  // Return an object with all methods bound to the client
+  return {
+    client,
+    signUpWithUsernameAndPassword: (username, password) => 
+      signUpWithUsernameAndPassword(username, password, client),
+    signUpWithEmailAndPassword: (email, password) => 
+      signUpWithEmailAndPassword(email, password, client),
+    signInWithUsernameAndPassword: (username, password) => 
+      signInWithUsernameAndPassword(username, password, client),
+    signInWithEmailAndPassword: (email, password) => 
+      signInWithEmailAndPassword(email, password, client),
+    signInWithEmailLink: (email) => 
+      signInWithEmailLink(email, client),
+    verifyEmailLink: (token) => 
+      verifyEmailLink(token, client),
+    signOut: () => signOut(client),
+    deleteUser: () => deleteUser(client),
+  };
+}
+```
+
+#### 3. Usage Examples
+
+With the above setup, developers can use your SDK in two ways:
+
+**Option A: Named Imports (Tree-shakeable)**
+```javascript
+import { VoultClient, signInWithEmailAndPassword } from 'voult-sdk';
+
+const client = new VoultClient({ apiKey: 'your-key', appId: 'your-app-id' });
+const { user } = await signInWithEmailAndPassword('user@example.com', 'password', client);
+```
+
+**Option B: Default Export (Convenient)**
+```javascript
+import voult from 'voult-sdk';
+
+const auth = voult({ apiKey: 'your-key', appId: 'your-app-id' });
+const { user } = await auth.signInWithEmailAndPassword('user@example.com', 'password');
+```
+
+#### 4. Version Export
+
+Export the SDK version for debugging:
+
+```javascript
+// src/index.js
+export const VERSION = '1.0.0'; // Or import from package.json
+```
+
+#### 5. Complete `src/index.js` Example
+
+```javascript
+// src/index.js
+
+/**
+ * Voult SDK - Authentication made simple
+ * @module voult-sdk
+ */
+
+// Version
+export const VERSION = '1.0.0';
+
+// Core client
+export { VoultClient } from './client.js';
+
+// Auth functions
+export {
+  signUpWithUsernameAndPassword,
+  signUpWithEmailAndPassword,
+} from './auth/signup.js';
+
+export {
+  signInWithUsernameAndPassword,
+  signInWithEmailAndPassword,
+  signInWithEmailLink,
+  verifyEmailLink,
+} from './auth/signin.js';
+
+export { signOut } from './auth/signout.js';
+export { deleteUser } from './auth/delete-user.js';
+
+// Error classes
+export {
+  VoultError,
+  AuthenticationError,
+  ValidationError,
+  NetworkError,
+} from './errors.js';
+
+// Default export for convenient usage
+import { VoultClient } from './client.js';
+import {
+  signUpWithUsernameAndPassword as _signupUsername,
+  signUpWithEmailAndPassword as _signupEmail,
+} from './auth/signup.js';
+import {
+  signInWithUsernameAndPassword as _signinUsername,
+  signInWithEmailAndPassword as _signinEmail,
+  signInWithEmailLink as _signinLink,
+  verifyEmailLink as _verifyLink,
+} from './auth/signin.js';
+import { signOut as _signOut } from './auth/signout.js';
+import { deleteUser as _deleteUser } from './auth/delete-user.js';
+
+/**
+ * Initialize the Voult SDK
+ * @param {Object} config - Configuration options
+ * @param {string} config.apiKey - Your API key
+ * @param {string} config.appId - Your application ID
+ * @param {string} [config.baseURL] - Optional API base URL
+ * @returns {Object} SDK instance with all methods
+ */
+export default function voult(config) {
+  const client = new VoultClient(config);
+
+  return {
+    client,
+    VERSION,
+    
+    // Auth methods
+    signUpWithUsernameAndPassword: (username, password) => 
+      _signupUsername(username, password, client),
+    signUpWithEmailAndPassword: (email, password) => 
+      _signupEmail(email, password, client),
+    signInWithUsernameAndPassword: (username, password) => 
+      _signinUsername(username, password, client),
+    signInWithEmailAndPassword: (email, password) => 
+      _signinEmail(email, password, client),
+    signInWithEmailLink: (email) => 
+      _signinLink(email, client),
+    verifyEmailLink: (token) => 
+      _verifyLink(token, client),
+    signOut: () => _signOut(client),
+    deleteUser: () => _deleteUser(client),
+  };
+}
+```
 
 ---
 
