@@ -18,10 +18,10 @@ PASSWORD AUTHENTICATION:
     - Verifies the email exists in the DB.
 
 PASSWORDLESS AUTHENTICATION:
-- signInWithEmailLink
+- signInWithEmailLink (Magic Link)
     - Sends a magic link to the user's email for authentication.
     - Validates email. 
-- more coming up soon... 
+- more coming up soon... (mobile device, fingerorint, phone number/SMS)
 
 - signout
     - Logs the user out of their account.
