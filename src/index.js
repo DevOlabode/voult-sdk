@@ -10,6 +10,7 @@ PASSWORD AUTHENTICATION:
     - Registers a new user using their email and password.
     - Search DB for email to prevent duplicates.
     - Validates password strength and format.
+    
 - signInWithUsernameAndPassword
     - Authenticates a user using their username and password.
     - Verifies the username exists in the DB.
