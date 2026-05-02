@@ -251,3 +251,40 @@ export async function getCurrentUser(client) {
   const response = await client.get('/api/me', { requireAuth: true });
   return response;
 }
+
+/**
+ * Resend verification email to the user's email address
+ * 
+ * This function sends a new verification email to the user.
+ * Used when the original verification email was not received or has expired.
+ * 
+ * @param {string} email - The user's email address
+ * @param {VoultClient} client - The Voult client instance
+ * @returns {Promise<Object>} Response confirming verification email was sent
+ * @throws {ValidationError} If email is invalid
+ * @throws {AuthenticationError} If sending fails
+ * @throws {ConflictError} If user is already verified
+ * 
+ * @example
+ * ```js
+ * const result = await resendVerificationEmail(
+ *   'user@example.com',
+ *   client
+ * );
+ * console.log(result.message); // "Verification email sent"
+ * ```
+ */
+export async function resendVerificationEmail(email, client) {
+  // Validate email
+  const normalizedEmail = validateEmail(email);
+  
+  // Make API request to resend verification email
+  const response = await client.post('/api/auth/resend-verification', {
+    email: normalizedEmail,
+  });
+  
+  return {
+    success: response.success,
+    message: response.message,
+  };
+}

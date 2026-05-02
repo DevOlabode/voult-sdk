@@ -65,6 +65,7 @@ export {
   signInWithEmailLink,
   verifyEmailLink,
   getCurrentUser,
+  resendVerificationEmail,
 } from './auth/signin.js';
 
 // Sign out functions
@@ -93,6 +94,7 @@ import {
   signInWithEmailLink as _signinLink,
   verifyEmailLink as _verifyLink,
   getCurrentUser as _getCurrentUser,
+  resendVerificationEmail as _resendVerification,
 } from './auth/signin.js';
 import {
   signOut as _signOut,
@@ -130,40 +132,31 @@ export default function voult(config) {
   return {
     // Client instance
     client,
-    
     // SDK version
     VERSION,
-    
     // Sign up methods
     signUpWithEmailAndPassword: (email, password, options) =>
       _signupEmail(email, password, options, client),
-    
     signUpWithUsernameAndPassword: (username, password, options) =>
       _signupUsername(username, password, options, client),
-    
     // Sign in methods
     signInWithEmailAndPassword: (email, password) =>
       _signinEmail(email, password, client),
-    
     signInWithUsernameAndPassword: (username, password) =>
       _signinUsername(username, password, client),
-    
     signInWithEmailLink: (email, options) =>
       _signinLink(email, options, client),
-    
     verifyEmailLink: (token) =>
       _verifyLink(token, client),
-    
     // User methods
     getCurrentUser: () =>
       _getCurrentUser(client),
-    
+    resendVerificationEmail: (email) =>
+      _resendVerification(email, client),
     signOut: () =>
       _signOut(client),
-    
     deleteUser: () =>
       _deleteUser(client),
-    
     // Session helpers
     isAuthenticated: () =>
       client.isAuthenticated(),
