@@ -278,13 +278,6 @@ export async function resendVerificationEmail(email, client) {
   // Validate email
   const normalizedEmail = validateEmail(email);
   
-  // Make API request to resend verification email
-  const response = await client.post('/api/auth/resend-verification', {
-    email: normalizedEmail,
-  });
-  
-  return {
-    success: response.success,
-    message: response.message,
-  };
+// Note: Backend doesn't have resend-verification endpoint. Manual resend must be implemented on backend.
+  throw new Error('Backend resend-verification endpoint not found. Verification emails are automatically sent during registration.');
 }

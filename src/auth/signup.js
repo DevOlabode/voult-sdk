@@ -105,15 +105,7 @@ export async function signUpWithEmailAndPassword(email, password, options = {}, 
     client.setSession(user, token, null);
   }
   
-  // Send verification email automatically after successful registration
-  try {
-    await client.post('/api/auth/resend-verification', {
-      email: normalizedEmail,
-    });
-  } catch (verificationError) {
-    // Log but don't fail the signup if verification email fails
-    console.warn('Failed to send verification email:', verificationError.message);
-  }
+// Backend automatically sends verification email - no manual call needed
   
   return {
     user,
@@ -199,17 +191,7 @@ export async function signUpWithUsernameAndPassword(username, password, options 
     client.setSession(user, token, null);
   }
   
-  // Send verification email automatically if email was provided
-  if (email) {
-    try {
-      await client.post('/api/auth/resend-verification', {
-        email: email,
-      });
-    } catch (verificationError) {
-      // Log but don't fail the signup if verification email fails
-      console.warn('Failed to send verification email:', verificationError.message);
-    }
-  }
+// Backend automatically sends verification email if provided - no manual call needed
   
   return {
     user,
