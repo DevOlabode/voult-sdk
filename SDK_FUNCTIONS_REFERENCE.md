@@ -69,6 +69,7 @@ const { user, token } = await signUpWithEmailAndPassword(
 | `password` | string | Yes | User's password (must meet complexity requirements) |
 | `options` | object | No | Optional parameters |
 | `options.fullName` | string | No | User's full name |
+| `options.username` | string | No | Optional username (3-30 chars, alphanumeric and underscores) |
 | `client` | VoultClient | Yes | The Voult client instance |
 
 **Returns:**
@@ -80,6 +81,16 @@ const { user, token } = await signUpWithEmailAndPassword(
 }
 ```
 
+**How It Works:**
+1. Validates email format (normalizes to lowercase, checks regex)
+2. Validates password meets requirements (min 8 chars, uppercase, lowercase, number, special char)
+3. Validates fullName if provided (cannot be empty)
+4. Validates username if provided (3-30 chars, alphanumeric and underscores only)
+5. Sends POST request to `/api/auth/register` with { email, password, ...optionalFields }
+6. On success: extracts user and token from response
+7. Calls `client.setSession(user, token, null)` to store session
+8. Returns { user, token, message }
+
 **Errors:**
 - `ValidationError` - Invalid email or weak password
 - `ConflictError` - User with email already exists
@@ -88,7 +99,7 @@ const { user, token } = await signUpWithEmailAndPassword(
 ---
 
 ### `signUpWithUsernameAndPassword(username, password, options, client)`
-Register a new user with username and password (requires email in options).
+Register a new user with username and password.
 
 ```javascript
 import { signUpWithUsernameAndPassword } from 'voult-sdk';
@@ -104,21 +115,31 @@ const { user, token } = await signUpWithUsernameAndPassword(
 **Parameters:**
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `username` | string | Yes | User's username |
-| `password` | string | Yes | User's password |
-| `options` | object | Yes | Options object |
-| `options.email` | string | Yes | User's email address |
+| `username` | string | Yes | User's username (3-30 chars, alphanumeric and underscores) |
+| `password` | string | Yes | User's password (must meet complexity requirements) |
+| `options` | object | No | Optional parameters |
 | `options.fullName` | string | No | User's full name |
+| `options.email` | string | No | Optional email address |
 | `client` | VoultClient | Yes | The Voult client instance |
 
 **Returns:**
 ```javascript
 {
-  user: { id, email },
+  user: { id, username },
   token: string,
   message: string
 }
 ```
+
+**How It Works:**
+1. Validates username format (3-30 chars, alphanumeric and underscores only, normalizes to lowercase)
+2. Validates password meets requirements (min 8 chars, uppercase, lowercase, number, special char)
+3. Validates fullName if provided (cannot be empty)
+4. Validates email if provided (normalizes to lowercase, checks regex)
+5. Sends POST request to `/api/auth/username-register` with { username, password, ...optionalFields }
+6. On success: extracts user and token from response
+7. Calls `client.setSession(user, token, null)` to store session
+8. Returns { user, token, message }
 
 ---
 
@@ -154,6 +175,14 @@ const { user, accessToken, refreshToken } = await signInWithEmailAndPassword(
 }
 ```
 
+**How It Works:**
+1. Validates email format (normalizes to lowercase, checks regex)
+2. Validates password meets requirements (min 8 chars, uppercase, lowercase, number, special char)
+3. Sends POST request to `/api/auth/email-login` with { email, password }
+4. On success: extracts user, accessToken, refreshToken from response
+5. Calls `client.setSession(user, accessToken, refreshToken)` to store session
+6. Returns { user, accessToken, refreshToken, message }
+
 **Errors:**
 - `ValidationError` - Invalid email or password format
 - `AuthenticationError` - Invalid credentials
@@ -163,13 +192,13 @@ const { user, accessToken, refreshToken } = await signInWithEmailAndPassword(
 ---
 
 ### `signInWithUsernameAndPassword(username, password, client)`
-Authenticate with username and password (username must be email format).
+Authenticate with username and password.
 
 ```javascript
 import { signInWithUsernameAndPassword } from 'voult-sdk';
 
 const { user, accessToken } = await signInWithUsernameAndPassword(
-  'user@example.com',
+  'john_doe',
   'StrongPass123!',
   client
 );
@@ -178,7 +207,7 @@ const { user, accessToken } = await signInWithUsernameAndPassword(
 **Parameters:**
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `username` | string | Yes | User's username (must be email format) |
+| `username` | string | Yes | User's username (3-30 chars, alphanumeric and underscores) |
 | `password` | string | Yes | User's password |
 | `client` | VoultClient | Yes | The Voult client instance |
 
@@ -191,6 +220,14 @@ const { user, accessToken } = await signInWithUsernameAndPassword(
   message: string
 }
 ```
+
+**How It Works:**
+1. Validates username format (3-30 chars, alphanumeric and underscores only, normalizes to lowercase)
+2. Validates password meets requirements (min 8 chars, uppercase, lowercase, number, special char)
+3. Sends POST request to `/api/auth/username-login` with { username, password }
+4. On success: extracts user, accessToken, refreshToken from response
+5. Calls `client.setSession(user, accessToken, refreshToken)` to store session
+6. Returns { user, accessToken, refreshToken, message }
 
 ---
 
